@@ -21,7 +21,7 @@ spoke_width = 0.04
 num_spokes = 4
 meshsize = 0.02
 r_depth = 0.02
-r_pressure = 0.1
+r_pressure = 0.05
 E = 1e8
 mu = 0.3
 load = 10000
@@ -114,16 +114,21 @@ mypart.setElementType(elemTypes=(ElemType(elemCode=C3D8R, elemLibrary=STANDARD),
 mypart.generateMesh()
 
 # get nodes for loading and BC
-mypart.Set(faces=mypart.faces.findAt((search_point_lateral,), ), name='face_big')
-face_big = mypart.sets['face_big'].faces[0]
-mypart.Set(nodes=face_big.getNodes(), name='face_nodes')
-face_big_nodes = mypart.sets['face_nodes'].nodes
-mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, r_out - r_depth, width / 2),
-                                                      center2=(0.0, r_out + r_depth, width / 2),
+# mypart.Set(faces=mypart.faces.findAt((search_point_lateral,), ), name='face_big')
+# face_big = mypart.sets['face_big'].faces[0]
+# Load
+mypart.Set(edges=mypart.edges.findAt((search_point_outer_edge,), ), name='load_edge')
+load_edge = mypart.sets['load_edge'].edges[0]
+mypart.Set(nodes=load_edge.getNodes(), name='load_edge_nodes')
+load_edge_nodes = mypart.sets['load_edge_nodes'].nodes
+mypart.Set(nodes=load_edge_nodes.getByBoundingCylinder(center1=(0.0, r_out - r_depth, width),
+                                                      center2=(0.0, r_out + r_depth, width),
                                                       radius=r_pressure), name='nodes_load')
 nodes_load = mypart.sets['nodes_load'].nodes
-mypart.Set(nodes=face_big_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_depth), width / 2),
-                                                      center2=(0.0, -(r_out + r_depth), width / 2),
+
+# BC
+mypart.Set(nodes=load_edge_nodes.getByBoundingCylinder(center1=(0.0, -(r_out - r_depth), width),
+                                                      center2=(0.0, -(r_out + r_depth), width),
                                                       radius=r_pressure), name='nodes_bc')
 nodes_bc = mypart.sets['nodes_bc'].nodes
 
